@@ -7,12 +7,14 @@ export interface DiceInterface {
 export interface RoundInterface {
     dices?: DiceInterface[]
     isImpossible: (color: string, value: number) => boolean
+    getPower: (color: string) => number
 }
 
 export interface GameInterface {
     id: number
     rounds?: RoundInterface[]
     isImpossible: (greenDice: Dice, redDice: Dice, blueDice: Dice) => boolean
+    getPower: (greenDice: Dice, redDice: Dice, blueDice: Dice) => number
 }
 
 export class Dice implements DiceInterface {
@@ -41,6 +43,12 @@ export class Round implements RoundInterface {
 
         return this.dices.reduce((acc, dice) => acc || dice.isImpossible(color, value), false)
     }
+
+    getPower(color: string): number {
+        if (!this.dices) return 0
+
+        return this.dices.reduce((acc, dice) => (dice.color === color && dice.value > acc ? dice.value : acc), 0)
+    }
 }
 
 export class Game implements GameInterface {
@@ -61,5 +69,22 @@ export class Game implements GameInterface {
                 round.isImpossible(blueDice.color, blueDice.value),
             false
         )
+    }
+
+    getPower(greenDice: Dice, redDice: Dice, blueDice: Dice): number {
+        const greenPower = this.rounds.reduce(
+            (acc, round) => (round.getPower(greenDice.color) > acc ? round.getPower(greenDice.color) : acc),
+            0
+        )
+        const redPower = this.rounds.reduce(
+            (acc, round) => (round.getPower(redDice.color) > acc ? round.getPower(redDice.color) : acc),
+            0
+        )
+        const bluePower = this.rounds.reduce(
+            (acc, round) => (round.getPower(blueDice.color) > acc ? round.getPower(blueDice.color) : acc),
+            0
+        )
+
+        return (greenPower === 0 ? 1 : greenPower) * (redPower === 0 ? 1 : redPower) * (bluePower === 0 ? 1 : bluePower)
     }
 }

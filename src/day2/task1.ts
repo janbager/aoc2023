@@ -23,5 +23,6 @@ export default () => {
 
     const sumOfPossibleGameIds = possibleGames.reduce((sum, game) => sum + game.id, 0)
     console.log(`The sum of all possible game ids is ${sumOfPossibleGameIds}`)
+
     return games
 }
