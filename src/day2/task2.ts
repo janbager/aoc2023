@@ -4,7 +4,7 @@ import extractGameId from './extractGameId'
 import extractRounds from './extractRounds'
 import { Dice, Game } from './Game'
 
-export default () => {
+export const task2 = () => {
     const data = loadData('src/day2/input.data')
     console.log('running day2 task2')
 
