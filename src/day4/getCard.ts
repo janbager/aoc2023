@@ -1,5 +1,5 @@
 import extractCardId from './extractCardId'
-import { Card } from './Game'
+import { Card } from './Card'
 import { isNumeric } from '../utils/isNumeric'
 
 export default (cardData: string) => {

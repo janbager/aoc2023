@@ -1,40 +1,14 @@
-interface CardInterface {
-    id: number
-    availableNumbers: number[]
-    chosenNumbers: number[]
-    winningNumbers: number[]
-    getPoints: () => number
-}
+import { CardInterface } from './Card'
 
 interface GameInterface {
     cards: CardInterface[]
-}
-
-export class Card implements CardInterface {
-    availableNumbers: number[]
-    chosenNumbers: number[]
-    id: number
-    winningNumbers: number[]
-
-    constructor(id: number, availableNumbers: number[], chosenNumbers: number[]) {
-        this.id = id
-        this.availableNumbers = availableNumbers
-        this.chosenNumbers = chosenNumbers
-        this.winningNumbers = this.findWinningNumbers()
-    }
-
-    findWinningNumbers() {
-        return this.availableNumbers.filter((x) => this.chosenNumbers.includes(x))
-    }
-
-    getPoints() {
-        if (this.winningNumbers.length === 0) return 0
-        return Math.pow(2, this.winningNumbers.length - 1)
-    }
+    copies: CardInterface[]
+    findCardById: (id: number) => CardInterface | undefined
 }
 
 export class Game implements GameInterface {
     cards: CardInterface[]
+    copies: CardInterface[] = [] as CardInterface[]
 
     constructor(cards: CardInterface[]) {
         this.cards = cards
@@ -42,5 +16,24 @@ export class Game implements GameInterface {
 
     getPoints() {
         return this.cards.reduce((acc, card) => acc + card.getPoints(), 0)
+    }
+
+    getCopies() {
+        let stack: CardInterface[] = []
+
+        this.cards.map((card, index) => {
+            stack.push(card)
+            card.getWinningNumbers().map((number, index) => {
+                const copy = this.findCardById(card.id + index + 1)
+                if (copy) {
+                    stack.push(copy)
+                }
+            })
+        })
+        console.log(stack.map((copy) => copy?.id))
+    }
+
+    findCardById(id: number): CardInterface | undefined {
+        return this.cards.find((card) => card.id === id)
     }
 }
