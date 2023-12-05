@@ -7,11 +7,15 @@ export default (cardData: string) => {
     const cardValues = cardData.split(': ')[1]
     const chosenNumbers = cardValues
         .split(' | ')[0]
+        .replace('   ', ' ')
+        .replace('  ', ' ')
         .split(' ')
         .map((value) => parseInt(value, 10))
         .filter((value) => isNumeric(value))
     const availableNumbers = cardValues
         .split(' | ')[1]
+        .replace('   ', ' ')
+        .replace('  ', ' ')
         .split(' ')
         .map((value) => parseInt(value, 10))
         .filter((value) => isNumeric(value))
