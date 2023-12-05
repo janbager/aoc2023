@@ -3,6 +3,7 @@ interface CardInterface {
     availableNumbers: number[]
     chosenNumbers: number[]
     winningNumbers: number[]
+    getPoints: () => number
 }
 
 interface GameInterface {
@@ -25,6 +26,11 @@ export class Card implements CardInterface {
     findWinningNumbers() {
         return this.availableNumbers.filter((x) => this.chosenNumbers.includes(x))
     }
+
+    getPoints() {
+        if (this.winningNumbers.length === 0) return 0
+        return Math.pow(2, this.winningNumbers.length - 1)
+    }
 }
 
 export class Game implements GameInterface {
@@ -32,5 +38,9 @@ export class Game implements GameInterface {
 
     constructor(cards: CardInterface[]) {
         this.cards = cards
+    }
+
+    getPoints() {
+        return this.cards.reduce((acc, card) => acc + card.getPoints(), 0)
     }
 }
