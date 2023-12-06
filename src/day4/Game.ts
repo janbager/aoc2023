@@ -2,7 +2,7 @@ import { CardInterface } from './Card'
 
 interface GameInterface {
     cards: CardInterface[]
-    copies: CardInterface[]
+    copies?: CardInterface[]
     findCardById: (id: number) => CardInterface | undefined
 }
 
@@ -18,19 +18,18 @@ export class Game implements GameInterface {
         return this.cards.reduce((acc, card) => acc + card.getPoints(), 0)
     }
 
-    getCopies() {
-        let stack: CardInterface[] = []
-
-        this.cards.map((card, index) => {
-            stack.push(card)
+    getCopies(stack: CardInterface[]) {
+        const myCopies = [] as CardInterface[]
+        stack.map((card) => {
             card.getWinningNumbers().map((number, index) => {
                 const copy = this.findCardById(card.id + index + 1)
                 if (copy) {
-                    stack.push(copy)
+                    myCopies.push(copy)
                 }
             })
         })
-        console.log(stack.map((copy) => copy?.id))
+
+        return [...myCopies.flat()]
     }
 
     findCardById(id: number): CardInterface | undefined {

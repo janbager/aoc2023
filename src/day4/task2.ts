@@ -2,9 +2,10 @@ import loadData from '../utils/loadData'
 import splitLines from '../utils/splitLines'
 import getCard from './getCard'
 import { Game } from './Game'
+import { CardInterface } from './Card'
 
 export const task2 = () => {
-    const data = loadData('src/day4/test.data')
+    const data = loadData('src/day4/input.data')
     console.log('running day4 task2')
 
     const lines = splitLines(data)
@@ -15,5 +16,14 @@ export const task2 = () => {
     const game = new Game(cards)
     console.log(`Total points: ${game.getPoints()}`)
 
-    console.log(`Total copies: ${game.getCopies()}`)
+    const cardStack = game.cards
+    let copies = game.getCopies(game.cards)
+    let i = 0
+    while (copies.length > 0) {
+        console.log(i++)
+        console.log(copies.map((card) => card.getWinningNumbers().length))
+        cardStack.push(...copies)
+        copies = game.getCopies(copies)
+    }
+    console.log(`Total cards in deck: ${cardStack.length}`)
 }
