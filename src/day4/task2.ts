@@ -18,12 +18,11 @@ export const task2 = () => {
 
     const cardStack = game.cards
     let copies = game.getCopies(game.cards)
-    let i = 0
+    let i = cardStack.length
     while (copies.length > 0) {
-        console.log(i++)
-        console.log(copies.map((card) => card.getWinningNumbers().length))
-        cardStack.push(...copies)
+        //        cardStack.push(...copies)
+        i += copies.length
         copies = game.getCopies(copies)
     }
-    console.log(`Total cards in deck: ${cardStack.length}`)
+    console.log(`Total cards in deck: ${i}`)
 }
