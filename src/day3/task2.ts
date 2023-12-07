@@ -9,6 +9,5 @@ export const task2 = () => {
     const scheme = splitLines(data).map((line) => [...line])
     const grid = new Scheme(scheme)
     grid.findGears()
-    console.log(grid.gearRatios)
     console.log(grid.gearRatios.reduce((acc, cur) => acc + cur, 0))
 }

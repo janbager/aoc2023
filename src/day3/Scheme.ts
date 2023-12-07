@@ -46,8 +46,8 @@ export class Scheme {
             isNumeric(this.scheme[row - 1][col]) ? this.numbers.push(new Coord(col, row - 1)) : null
 
             if (col < this.width - 1) {
-                isNumeric(this.scheme[row - 1][col + 1]) ? this.numbers.push(new Coord(col + 1, row - 1)) : null
                 // check top right
+                isNumeric(this.scheme[row - 1][col + 1]) ? this.numbers.push(new Coord(col + 1, row - 1)) : null
             }
         }
 
@@ -65,8 +65,8 @@ export class Scheme {
                 // check bottom left
                 isNumeric(this.scheme[row + 1][col - 1]) ? this.numbers.push(new Coord(col - 1, row + 1)) : null
             }
-            isNumeric(this.scheme[row + 1][col]) ? this.numbers.push(new Coord(col, row + 1)) : null
             // check below
+            isNumeric(this.scheme[row + 1][col]) ? this.numbers.push(new Coord(col, row + 1)) : null
             if (col < this.width - 1) {
                 // check bottom right
                 isNumeric(this.scheme[row + 1][col + 1]) ? this.numbers.push(new Coord(col + 1, row + 1)) : null
@@ -128,7 +128,6 @@ export class Scheme {
                     this.partNumbers.push(parseInt(this.buildPartNumber(coord)))
                 })
 
-                console.log(this.partNumbers)
                 this.gearRatios.push(
                     parseInt(this.buildPartNumber(this.numbers[0])) * parseInt(this.buildPartNumber(this.numbers[1]))
                 )
