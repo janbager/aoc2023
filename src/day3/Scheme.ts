@@ -1,120 +1,118 @@
 import { isNumeric } from '../utils/isNumeric'
 import { isSymbol } from './isSymbol'
+import { Coord } from './Coord'
 
 export class Scheme {
     scheme: any[][]
+    symbols: Coord[] = []
+    numbers: Coord[] = []
     width: number
     height: number
-    currentPartNumber: string[]
-    processedIndex: number
-    isPartNumber: boolean
     partNumbers: number[] = []
 
     constructor(scheme: any[][]) {
         this.scheme = scheme
         this.width = scheme[0].length
         this.height = scheme.length
-        this.currentPartNumber = []
-        this.processedIndex = 0
-        this.isPartNumber = false
+        this.initSymbols()
+    }
+
+    initSymbols = () => {
+        this.scheme.map((row, y) => {
+            row.map((character, x) => {
+                if (isSymbol(character)) {
+                    this.symbols.push(new Coord(x, y))
+                }
+            })
+        })
+    }
+
+    checkNeighbors = (col: number, row: number) => {
+        if (row > 0) {
+            if (col > 0) {
+                // check top left
+                isNumeric(this.scheme[row - 1][col - 1]) ? this.numbers.push(new Coord(col - 1, row - 1)) : null
+            }
+            // check above
+            isNumeric(this.scheme[row - 1][col]) ? this.numbers.push(new Coord(col, row - 1)) : null
+
+            if (col < this.width - 1) {
+                isNumeric(this.scheme[row - 1][col + 1]) ? this.numbers.push(new Coord(col + 1, row - 1)) : null
+                // check top right
+            }
+        }
+
+        if (col > 0) {
+            // check left
+            isNumeric(this.scheme[row][col - 1]) ? this.numbers.push(new Coord(col - 1, row)) : null
+        }
+        if (col < this.width - 1) {
+            // check right
+            isNumeric(this.scheme[row][col + 1]) ? this.numbers.push(new Coord(col + 1, row)) : null
+        }
+
+        if (row < this.height - 1) {
+            if (col > 0) {
+                // check bottom left
+                isNumeric(this.scheme[row + 1][col - 1]) ? this.numbers.push(new Coord(col - 1, row + 1)) : null
+            }
+            isNumeric(this.scheme[row + 1][col]) ? this.numbers.push(new Coord(col, row + 1)) : null
+            // check below
+            if (col < this.width - 1) {
+                // check bottom right
+                isNumeric(this.scheme[row + 1][col + 1]) ? this.numbers.push(new Coord(col + 1, row + 1)) : null
+            }
+        }
+    }
+
+    findPartNumbers = () => {
+        this.symbols.map((symbol) => {
+            this.checkNeighbors(symbol.x, symbol.y)
+        })
+        this.numbers.sort((a, b) => {
+            if (a.y === b.y) {
+                return a.x < b.x ? -1 : 1
+            }
+            return a.y < b.y ? -1 : 1
+        })
+
+        this.numbers = this.numbers.filter((coord, index, original) => {
+            if (index === 0) {
+                return true
+            }
+
+            const last = original[index - 1]
+            if (coord.y === last.y && Math.abs(coord.x - last.x) <= 1) {
+                return false
+            }
+            return true
+        })
+
+        this.numbers.map((coord) => {
+            this.partNumbers.push(parseInt(this.buildPartNumber(coord)))
+        })
+        return this.partNumbers
+    }
+
+    buildPartNumber = (coord: Coord) => {
+        let partNumber = this.scheme[coord.y][coord.x]
+        // go to the left until you hit a non numeric
+        let col = coord.x
+        while (isNumeric(this.scheme[coord.y][col - 1])) {
+            partNumber = this.scheme[coord.y][col - 1] + partNumber
+            col--
+        }
+        // go to the right until you hit a non numeric
+        col = coord.x
+        while (isNumeric(this.scheme[coord.y][col + 1])) {
+            partNumber = partNumber + this.scheme[coord.y][col + 1]
+            col++
+        }
+
+        return partNumber
     }
 
     isSymbol(x: number, y: number) {
         return isSymbol(this.scheme[y][x])
-    }
-
-    checkNeighbours(x: number, y: number) {
-        if (!isNumeric(this.scheme[y][x])) return false
-
-        this.currentPartNumber.push(this.scheme[y][x])
-        if (x < this.width - 1 && isNumeric(this.scheme[y][x + 1])) {
-            const nextNumeric = this.checkNeighbours(x + 1, y)
-            if (!nextNumeric && this.currentPartNumber.length > 0) {
-                this.processedIndex = x + 1
-            }
-            console.log(`x: ${x}, y: ${y}, currentPartNumber: ${this.currentPartNumber}`)
-        }
-
-        this.checkRight(x, y)
-        this.checkLeft(x, y)
-        this.checkAbove(x, y)
-        this.checkBelow(x, y)
-        this.checkDiagonals(x, y)
-
-        if (this.processedIndex > x && this.isPartNumber && this.currentPartNumber.length > 0) {
-            this.partNumbers.push(parseInt(this.currentPartNumber.join('')))
-            this.isPartNumber = false
-            this.currentPartNumber = []
-        }
-    }
-
-    checkRight(x: number, y: number) {
-        if (x === this.width - 1) return false
-        if (this.isSymbol(x + 1, y)) {
-            this.isPartNumber = true
-        }
-    }
-
-    checkDiagonals(x: number, y: number) {
-        if (x > 0) {
-            if (y > 0 && this.isSymbol(x - 1, y - 1)) {
-                //                console.log('TL: ', x, y, this.scheme[y][x], this.scheme[y - 1][x - 1])
-                this.isPartNumber = true
-            }
-            if (y < this.height - 1 && this.isSymbol(x - 1, y + 1)) {
-                //                console.log('BL: ', x, y, this.scheme[y][x], this.scheme[y + 1][x - 1])
-                this.isPartNumber = true
-            }
-        }
-        if (x < this.width - 1) {
-            if (y > 0 && this.isSymbol(x + 1, y - 1)) {
-                this.isPartNumber = true
-            }
-            if (y < this.height - 1 && this.isSymbol(x + 1, y + 1)) {
-                this.isPartNumber = true
-            }
-        }
-    }
-
-    checkLeft(x: number, y: number) {
-        if (x === 0) return false
-        if (this.isSymbol(x - 1, y)) {
-            this.isPartNumber = true
-        }
-    }
-
-    checkAbove(x: number, y: number) {
-        if (y === 0) return false
-        if (this.isSymbol(x, y - 1)) {
-            this.isPartNumber = true
-        }
-    }
-
-    checkBelow(x: number, y: number) {
-        if (y === this.height - 1) return false
-        if (this.isSymbol(x, y + 1)) {
-            this.isPartNumber = true
-        }
-    }
-
-    findPartNumbers() {
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                if (x < this.processedIndex) continue
-                this.checkNeighbours(x, y)
-                //this.extractNumbers(x, y)
-            }
-        }
-        return this.partNumbers.filter((partNumber) => isNumeric(partNumber))
-    }
-
-    extractNumbers(x: number, y: number) {
-        if (x < this.width - 1 && isNumeric(this.scheme[y][x + 1])) {
-            console.log(`x: ${x}, y: ${y}, currentPartNumber: ${this.currentPartNumber}`)
-            this.extractNumbers(x + 1, y)
-        } else {
-            this.processedIndex = x
-            this.currentPartNumber.push(this.scheme[y][x])
-        }
     }
 }
