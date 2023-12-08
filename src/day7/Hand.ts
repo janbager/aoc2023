@@ -22,13 +22,20 @@ export class Hand implements HandInterface {
     rank: number = 0
     type: number = 0
     alphabet: string[] = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+    alphabetJoker: string[] = ['J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A']
     counter: number[]
 
-    constructor(cards: string, bid: number) {
+    constructor(cards: string, bid: number, joker: boolean = false) {
         this.cards = cards
         this.bid = bid
+        if (joker) {
+            this.alphabet = this.alphabetJoker
+        }
         this.counter = this.alphabet.map(() => 0)
         this.countCards()
+        if (joker) {
+            this.applyJokers()
+        }
         this.setType()
     }
 
@@ -37,6 +44,36 @@ export class Hand implements HandInterface {
             this.counter[this.alphabet.indexOf(card)]++
         })
     }
+
+    applyJokers = () => {
+        if (this.counter.length === 0) {
+            return
+        }
+
+        const jokerIndex = this.alphabetJoker.indexOf('J')
+        if (this.counter[jokerIndex] === 0) {
+            return
+        }
+
+        const jokerCount = this.counter[jokerIndex]
+        if (jokerCount === 5) {
+            return
+        } else {
+            let jokerApplied = false
+            for (let i = 5; i > 0; i--) {
+                if (jokerApplied) {
+                    return
+                }
+                let highestIndex = this.counter.lastIndexOf(i)
+                if (highestIndex !== -1) {
+                    jokerApplied = true
+                    this.counter[jokerIndex] = 0
+                    this.counter[highestIndex] += jokerCount
+                }
+            }
+        }
+    }
+
     setType = () => {
         const pattern = this.counter
             .filter((count) => count > 0)
@@ -81,6 +118,7 @@ export class Hand implements HandInterface {
             })
             .filter((value) => value !== 0)
 
+        console.log(compared)
         if (compared.length === 0) {
             return 0
         }
