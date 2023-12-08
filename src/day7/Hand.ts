@@ -42,7 +42,6 @@ export class Hand implements HandInterface {
             .filter((count) => count > 0)
             .sort((a, b) => (a < b ? 1 : -1))
             .join('_')
-
         switch (pattern) {
             case '5':
                 this.type = HandTypes.five_of_a_kind
@@ -78,12 +77,11 @@ export class Hand implements HandInterface {
                 if (cardIndex === compareIndex) {
                     return 0
                 }
-                return card < hand.cards[index] ? 1 : -1
+                return cardIndex < compareIndex ? -1 : 1
             })
             .filter((value) => value !== 0)
 
         if (compared.length === 0) {
-            console.log('identical hands')
             return 0
         }
         return compared[0]

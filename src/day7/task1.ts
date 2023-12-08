@@ -5,7 +5,7 @@ import { CamelCard } from './CamelCard'
 
 export const task1 = () => {
     console.log('running day7 task1')
-    const data = loadData('src/day7/test.data')
+    const data = loadData('src/day7/input.data')
     const lines = splitLines(data)
     const hands = lines.map((line) => {
         const rawHand = line.split(' ')
@@ -13,5 +13,7 @@ export const task1 = () => {
     })
     const game = new CamelCard(hands)
     game.play()
+
+    game.hands.map((hand) => console.log(hand.cards, hand.type, hand.rank))
     console.log(game.hands.reduce((acc, cur) => acc + cur.bid * cur.rank, 0))
 }
