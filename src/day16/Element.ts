@@ -1,4 +1,5 @@
 import { Beam, BeamInterface } from './Beam'
+import { cloneDeep } from 'lodash'
 
 export enum ElementModifier {
     mirror_tl_br = '\\',
@@ -73,7 +74,7 @@ export class Element implements ElementInterface {
     public splitterH(beam: BeamInterface): BeamInterface[] {
         if (beam.direction.x === 0 && beam.direction.y !== 0) {
             // vertical
-            const newBeam: BeamInterface = Object.assign({}, beam)
+            const newBeam: BeamInterface = cloneDeep(beam)
             if (beam.direction.y === 1) {
                 beam.direction.x = 1
                 beam.direction.y = 0
@@ -99,7 +100,7 @@ export class Element implements ElementInterface {
     public splitterV(beam: BeamInterface): BeamInterface[] {
         if (beam.direction.x !== 0 && beam.direction.y === 0) {
             // vertical
-            const newBeam: BeamInterface = new Beam(beam.x, beam.y, beam.direction)
+            const newBeam: BeamInterface = cloneDeep(beam)
             if (beam.direction.x === 1) {
                 beam.direction.x = 0
                 beam.direction.y = 1

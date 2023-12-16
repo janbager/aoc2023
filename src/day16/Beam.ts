@@ -6,7 +6,6 @@ interface VectorInterface {
 export interface BeamInterface extends VectorInterface {
     direction: VectorInterface
     active: boolean
-    disable: () => void
 }
 
 export class Beam implements BeamInterface {
@@ -19,9 +18,5 @@ export class Beam implements BeamInterface {
         this.x = x
         this.y = y
         this.direction = direction
-    }
-
-    public disable = (): void => {
-        this.active = false
     }
 }

@@ -22,7 +22,6 @@ export class Controller implements ControllerInterface {
         this.energized = elements.map((row) => row.map(() => false))
         this.gridHeight = elements.length
         this.gridWidth = elements[0].length
-        this.activate(initialBeam)
     }
 
     public activate(beam: BeamInterface): void {
@@ -35,31 +34,34 @@ export class Controller implements ControllerInterface {
         return this.beams.some((beam) => beam.active)
     }
 
-    public run() {
-        console.log(this.beams)
+    public update() {
+        let iterationIndex = 0
         while (this.beams.length > 0 && this.hasActiveBeams()) {
-            console.log(this.hasActiveBeams())
-            this.beams.map((beam) => {
-                if (beam.active === true) {
+            this.beams.forEach((beam, index) => {
+                if (beam.active) {
                     if (beam.x < 0 || beam.x >= this.gridWidth || beam.y < 0 || beam.y >= this.gridHeight) {
-                        beam.disable()
+                        beam.active = false
+                    } else {
+                        this.energized[beam.y][beam.x] = true
                     }
                     const beams = this.grid[beam.y][beam.x].modify(beam)
-                    console.log(beams)
                     if (beams.length > 1) {
+                        const newBeam = beams[1]
                         if (
-                            beams[1].x < 0 ||
-                            beams[1].x >= this.grid[beams[1].y].length ||
-                            beams[1].y < 0 ||
-                            beams[1].y >= this.grid.length
+                            newBeam.x < 0 ||
+                            newBeam.x >= this.gridWidth ||
+                            newBeam.y < 0 ||
+                            newBeam.y >= this.gridHeight
                         ) {
-                            console.log(beams[1])
-                            beams[1].disable()
+                            newBeam.active = false
+                        } else {
+                            this.energized[newBeam.y][newBeam.x] = true
                         }
-                        this.beams.push(beams[1])
+                        this.beams.push(newBeam)
                     }
                 }
             })
+            console.log(`run: ${iterationIndex++}`)
         }
     }
 }
