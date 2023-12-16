@@ -70,8 +70,8 @@ describe('Element', () => {
                     y: 1,
                     direction: { x: 0, y: 1 },
                     active: true,
-                    initialPosition: { x: 0, y: 1 },
-                    initialDirection: { x: 0, y: 1 },
+                    initialPosition: { x: 0, y: 0 },
+                    initialDirection: { x: 1, y: 0 },
                     hash: '0,0|1,0',
                 },
                 {
@@ -81,7 +81,7 @@ describe('Element', () => {
                     active: true,
                     initialPosition: { x: 0, y: -1 },
                     initialDirection: { x: 0, y: -1 },
-                    hash: '0,0|1,0',
+                    hash: '0,-1|0,-1',
                 },
             ])
             expect(element.modify(beamLeft)).toEqual([
@@ -99,9 +99,9 @@ describe('Element', () => {
                     y: 1,
                     direction: { x: 0, y: 1 },
                     active: true,
-                    initialPosition: { x: 1, y: 0 },
-                    initialDirection: { x: -1, y: 0 },
-                    hash: '1,0|-1,0',
+                    initialPosition: { x: 1, y: 1 },
+                    initialDirection: { x: 0, y: 1 },
+                    hash: '1,1|0,1',
                 },
             ])
         })
@@ -234,9 +234,9 @@ describe('Element', () => {
                     y: 0,
                     direction: { x: -1, y: 0 },
                     active: true,
-                    initialPosition: { x: 0, y: 0 },
-                    initialDirection: { x: 0, y: 1 },
-                    hash: '0,0|0,1',
+                    initialPosition: { x: -1, y: 0 },
+                    initialDirection: { x: -1, y: 0 },
+                    hash: '-1,0|-1,0',
                 },
             ])
             expect(element.modify(beamUp)).toEqual([
@@ -254,9 +254,9 @@ describe('Element', () => {
                     y: 0,
                     direction: { x: 1, y: 0 },
                     active: true,
-                    initialPosition: { x: 0, y: 0 },
-                    initialDirection: { x: 0, y: -1 },
-                    hash: '0,0|0,-1',
+                    initialPosition: { x: 1, y: 0 },
+                    initialDirection: { x: 1, y: 0 },
+                    hash: '1,0|1,0',
                 },
             ])
         })
