@@ -16,7 +16,7 @@ export class Controller implements ControllerInterface {
     gridHeight: number = 0
     energized: boolean[][]
 
-    constructor(elements: ElementInterface[][], initialBeam: BeamInterface) {
+    constructor(elements: ElementInterface[][], initialBeam: Beam) {
         this.grid = elements
         this.beams.push(initialBeam)
         this.energized = elements.map((row) => row.map(() => false))
@@ -24,44 +24,58 @@ export class Controller implements ControllerInterface {
         this.gridWidth = elements[0].length
     }
 
-    public activate(beam: BeamInterface): void {
-        if (beam.x >= 0 && beam.x < this.grid.length && beam.y >= 0 && beam.y < this.grid[beam.x].length) {
-            this.energized[beam.x][beam.y] = true
-        }
-    }
-
     public hasActiveBeams(): boolean {
         return this.beams.some((beam) => beam.active)
     }
 
-    public update() {
-        let iterationIndex = 0
-        while (this.beams.length > 0 && this.hasActiveBeams()) {
-            this.beams.forEach((beam, index) => {
-                if (beam.active) {
-                    if (beam.x < 0 || beam.x >= this.gridWidth || beam.y < 0 || beam.y >= this.gridHeight) {
-                        beam.active = false
-                    } else {
-                        this.energized[beam.y][beam.x] = true
-                    }
-                    const beams = this.grid[beam.y][beam.x].modify(beam)
-                    if (beams.length > 1) {
-                        const newBeam = beams[1]
-                        if (
-                            newBeam.x < 0 ||
-                            newBeam.x >= this.gridWidth ||
-                            newBeam.y < 0 ||
-                            newBeam.y >= this.gridHeight
-                        ) {
-                            newBeam.active = false
-                        } else {
-                            this.energized[newBeam.y][newBeam.x] = true
-                        }
-                        this.beams.push(newBeam)
-                    }
-                }
+    public countActiveBeams(): number {
+        return this.beams.filter((beam) => beam.active).length
+    }
+
+    public isOutOfBounds(beam: BeamInterface): boolean {
+        return beam.x < 0 || beam.x >= this.gridWidth || beam.y < 0 || beam.y >= this.gridHeight
+    }
+
+    public countEnergized(): number {
+        let count = 0
+        this.energized.forEach((row) => row.forEach((cell) => (cell ? count++ : null)))
+        return count
+    }
+
+    public isNewBeam(beam: BeamInterface): boolean {
+        return this.beams.filter((b) => b.hash === beam.hash).length === 0
+    }
+
+    public echoEnergized(): string {
+        let result = ''
+        this.energized.forEach((row) => {
+            row.forEach((cell) => {
+                result += cell ? '#' : '.'
             })
-            console.log(`run: ${iterationIndex++}`)
+            result += '\n'
+        })
+        return result
+    }
+
+    public update() {
+        while (this.hasActiveBeams()) {
+            this.beams
+                .filter((beam) => beam.active)
+                .forEach((beam) => {
+                    if (this.isOutOfBounds(beam)) {
+                        beam.active = false
+                        return
+                    }
+                    this.energized[beam.y][beam.x] = true
+                    const beams: BeamInterface[] = this.grid[beam.y][beam.x].modify(beam)
+                    if (beams.length > 1) {
+                        const newBeam: BeamInterface = beams[1]
+                        if (!this.isOutOfBounds(newBeam) && this.isNewBeam(newBeam)) {
+                            this.energized[newBeam.y][newBeam.x] = true
+                            this.beams.push(newBeam as Beam)
+                        }
+                    }
+                })
         }
     }
 }

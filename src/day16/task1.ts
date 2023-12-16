@@ -8,6 +8,10 @@ export const task1 = () => {
     console.log('running day16 task1')
     const data = loadData('src/day16/test.data')
     const lines = splitLines(data)
+    //const lines = ['..|', '...', '.|/', './.']
+
+    console.log(lines)
+
     const elements: Element[][] = []
     lines.map((line, y) => {
         elements.push([])
@@ -17,9 +21,8 @@ export const task1 = () => {
     })
 
     const initialBeam = new Beam(0, 0, { x: 1, y: 0 })
-
-    console.log(initialBeam)
-    console.log(lines)
     const controller = new Controller(elements, initialBeam)
-    controller.run()
+    controller.update()
+    console.log(controller.echoEnergized())
+    console.log(controller.countEnergized())
 }

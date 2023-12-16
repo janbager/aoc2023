@@ -41,8 +41,7 @@ export class Element implements ElementInterface {
                 beam.direction.y = 0
             }
         }
-        beam.x += beam.direction.x
-        beam.y += beam.direction.y
+        beam.next()
         return [beam]
     }
 
@@ -66,8 +65,7 @@ export class Element implements ElementInterface {
                 beam.direction.y = 0
             }
         }
-        beam.x += beam.direction.x
-        beam.y += beam.direction.y
+        beam.next()
         return [beam]
     }
 
@@ -86,14 +84,15 @@ export class Element implements ElementInterface {
                 newBeam.direction.x = 1
                 newBeam.direction.y = 0
             }
-            newBeam.x += newBeam.direction.x
-            newBeam.y += newBeam.direction.y
-            beam.x += beam.direction.x
-            beam.y += beam.direction.y
+            newBeam.next()
+            newBeam.initialPosition = { x: newBeam.x, y: newBeam.y }
+            newBeam.initialDirection = { ...newBeam.direction }
+            newBeam.hash = newBeam.createHash()
+
+            beam.next()
             return [beam, newBeam]
         }
-        beam.x += beam.direction.x
-        beam.y += beam.direction.y
+        beam.next()
         return [beam]
     }
 
@@ -112,20 +111,20 @@ export class Element implements ElementInterface {
                 newBeam.direction.x = 0
                 newBeam.direction.y = 1
             }
-            newBeam.x += newBeam.direction.x
-            newBeam.y += newBeam.direction.y
-            beam.x += beam.direction.x
-            beam.y += beam.direction.y
+            newBeam.next()
+            newBeam.initialPosition = { x: newBeam.x, y: newBeam.y }
+            newBeam.initialDirection = { ...newBeam.direction }
+            newBeam.hash = newBeam.createHash()
+
+            beam.next()
             return [beam, newBeam]
         }
-        beam.x += beam.direction.x
-        beam.y += beam.direction.y
+        beam.next()
         return [beam]
     }
 
     public empty(beam: BeamInterface): BeamInterface[] {
-        beam.x += beam.direction.x
-        beam.y += beam.direction.y
+        beam.next()
         return [beam]
     }
 
