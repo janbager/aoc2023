@@ -11,6 +11,7 @@ import { task2 as day7task2 } from './day7/task2'
 import { task1 as day8task1 } from './day8/task1'
 import { task1 as day12task1 } from './day12/task1'
 import { task1 as day16task1 } from './day16/task1'
+import { task2 as day16task2 } from './day16/task2'
 
 //day2task1()
 //day2task2()
@@ -26,4 +27,4 @@ import { task1 as day16task1 } from './day16/task1'
 //day7task2()
 //day8task1()
 //day12task1()
-day16task1()
+day16task2()
