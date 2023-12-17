@@ -33,23 +33,27 @@ export const task2 = () => {
     }
 
     const result: number[] = []
-    initialBeamsLeft.forEach((initialBeam) => {
-        const controller = new Controller(elements, initialBeam)
-        controller.update()
-        result.push(controller.countEnergized())
-    })
-    initialBeamsTop.forEach((initialBeam) => {
-        const controller = new Controller(elements, initialBeam)
-        controller.update()
-        result.push(controller.countEnergized())
-    })
     /*
-    // right and bottom start vectors lead to infinite loop
-        initialBeamsRight.forEach((initialBeam) => {
+        initialBeamsLeft.forEach((initialBeam) => {
             const controller = new Controller(elements, initialBeam)
             controller.update()
             result.push(controller.countEnergized())
         })
+        initialBeamsTop.forEach((initialBeam) => {
+            const controller = new Controller(elements, initialBeam)
+            controller.update()
+            result.push(controller.countEnergized())
+        })
+    // right and bottom start vectors lead to infinite loop
+    initialBeamsRight.forEach((initialBeam) => {
+        const controller = new Controller(elements, initialBeam)
+        controller.update()
+        console.log(initialBeam.hash, controller.countEnergized())
+        result.push(controller.countEnergized())
+    })
+    */
+
+    /*
         initialBeamsBottom.forEach((initialBeam) => {
             const controller = new Controller(elements, initialBeam)
             controller.update()
@@ -57,4 +61,9 @@ export const task2 = () => {
         })
      */
     console.log(result.reduce((a, b) => (a > b ? a : b), 0))
+
+    const initialBeam = new Beam(109, 104, { x: -1, y: 0 })
+    const controller = new Controller(elements, initialBeam)
+    controller.update()
+    console.log(initialBeam.hash, controller.countEnergized(), controller.countActiveBeams())
 }
