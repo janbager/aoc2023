@@ -36,7 +36,7 @@ export const task1 = () => {
 //    map.fill(map.path[0].x + 1, map.path[0].y + 1, '#', '.')
 //    console.log('Filled map')
 //    console.log(map.toString())
-    writeData('./output.txt', map.toString())
+    writeData('src/day18/output.txt', map.toString())
 
     console.log(map.getVolume())
     console.log(path)

@@ -1,8 +1,10 @@
 import {PointInterface, VectorInterface} from './interfaces'
 import {Point} from './Point'
 import {Line} from './Line'
+import {HashMap} from "../utils/types";
 
 interface MapInterface {
+    points: HashMap<PointInterface>
     grid: PointInterface[][]
     gridHeight: number
     gridWidth: number
@@ -18,6 +20,7 @@ export enum Direction {
 }
 
 export class Map implements MapInterface {
+    points: HashMap<Point> = {}
     grid: PointInterface[][] = []
     path: PointInterface[] = []
     gridHeight: number = 0
@@ -25,6 +28,7 @@ export class Map implements MapInterface {
     visited: PointInterface[] = []
 
     constructor(path: PointInterface[]) {
+
         this.path = path
         this.init()
     }
@@ -52,46 +56,43 @@ export class Map implements MapInterface {
         this.gridWidth = Math.abs(minX) + Math.abs(maxX) + 1
 
         for (let y = 0; y < this.gridHeight; y++) {
-            this.grid[y] = []
             for (let x = 0; x < this.gridWidth; x++) {
                 const pathItem = this.path.find((point) => point.x === x && point.y === y)
-                this.grid[y][x] = pathItem ? pathItem : new Point(x, y, '', '.')
+                if (pathItem) {
+                    this.points[pathItem.key()] = pathItem
+                } else {
+                    const newPoint = new Point(x, y, '', '.')
+                    this.points[newPoint.key()] = newPoint
+                }
             }
         }
+        console.log(Object.keys(this.points).length)
     }
 
     public drawLine(start: PointInterface, direction: VectorInterface): void {
         const line = new Line(start, direction)
         const points = line.draw()
         points.forEach((point: PointInterface) => {
-            this.grid[point.y][point.x] = point
+            this.points[point.key()] = point
         })
     }
 
-    public setPoint(x: number, y: number, color: string, value?: string): void {
-        this.grid[y][x] = new Point(x, y, color, value ? value : '.')
-    }
-
-    public getPoint(x: number, y: number): PointInterface {
-        return this.grid[y][x]
-    }
-
     public getVolume(): number {
-        return this.grid.reduce((volume, line) => volume + line.filter((point) => point.value === '#').length, 0)
+        return Object.values(this.points).reduce((volume, current) => volume + (current.value === '#' ? 1 : 0), 0)
     }
 
     public getNeighbours(x: number, y: number) {
         const neighbours: PointInterface[] = []
 
         if (x > 0 && x < this.gridWidth - 1 && y > 0 && y < this.gridHeight - 1) {
-            neighbours.push(this.grid[y - 1][x - 1])
-            neighbours.push(this.grid[y - 1][x])
-            neighbours.push(this.grid[y - 1][x + 1])
-            neighbours.push(this.grid[y][x - 1])
-            neighbours.push(this.grid[y][x + 1])
-            neighbours.push(this.grid[y + 1][x - 1])
-            neighbours.push(this.grid[y + 1][x])
-            neighbours.push(this.grid[y + 1][x + 1])
+            neighbours.push(this.points[`${y - 1},${x - 1}`])
+            neighbours.push(this.points[`${y - 1},${x}`])
+            neighbours.push(this.points[`${y - 1},${x + 1}`])
+            neighbours.push(this.points[`${y},${x - 1}`])
+            neighbours.push(this.points[`${y},${x + 1}`])
+            neighbours.push(this.points[`${y + 1},${x - 1}`])
+            neighbours.push(this.points[`${y + 1},${x}`])
+            neighbours.push(this.points[`${y + 1},${x + 1}`])
         }
 
         return neighbours
@@ -104,11 +105,11 @@ export class Map implements MapInterface {
         if (y < 0 || y >= this.gridHeight) {
             return
         }
-        if (this.grid[y][x].value !== prev) {
+        if (this.points[`${y},${x}`].value !== prev) {
             return
         }
-        this.grid[y][x].value = value
-        this.visited.push(this.grid[y][x])
+        this.points[`${y},${x}`].value = value
+        this.visited.push(this.points[`${y},${x}`])
 
         this.getNeighbours(x, y).forEach((neighbour) => {
             const alreadyVisited = this.visited.filter(
@@ -125,7 +126,7 @@ export class Map implements MapInterface {
         for (let y = 0; y < this.gridHeight; y++) {
             let line = ''
             for (let x = 0; x < this.gridWidth; x++) {
-                line += this.grid[y][x].value
+                line += this.points[`${x},${y}`] ? this.points[`${x},${y}`].value : ''
             }
             text = `${text}${line}\n`
         }

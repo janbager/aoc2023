@@ -1,4 +1,4 @@
-import { PointInterface } from './interfaces'
+import {PointInterface} from './interfaces'
 
 export class Point implements PointInterface {
     x: number
@@ -11,5 +11,9 @@ export class Point implements PointInterface {
         this.y = y
         this.color = color
         this.value = value
+    }
+
+    public key(): string {
+        return `${this.x},${this.y}`
     }
 }
