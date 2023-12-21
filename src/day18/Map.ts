@@ -1,35 +1,32 @@
-import {PointInterface, VectorInterface} from './interfaces'
+import {PointInterface} from './interfaces'
 import {Point} from './Point'
-import {Line} from './Line'
 import {HashMap} from "../utils/types";
 
 interface MapInterface {
     points: HashMap<PointInterface>
-    grid: PointInterface[][]
     gridHeight: number
     gridWidth: number
     path: PointInterface[]
+    pathMap: HashMap<PointInterface>
+    pathPolygon: PointInterface[]
     visited: PointInterface[]
-}
-
-export enum Direction {
-    Up = 'U',
-    Down = 'D',
-    Left = 'L',
-    Right = 'R',
+    filled: HashMap<PointInterface>
 }
 
 export class Map implements MapInterface {
     points: HashMap<Point> = {}
-    grid: PointInterface[][] = []
     path: PointInterface[] = []
+    pathMap: HashMap<PointInterface> = {}
+    pathPolygon: PointInterface[] = []
     gridHeight: number = 0
     gridWidth: number = 0
     visited: PointInterface[] = []
+    filled: HashMap<PointInterface> = {}
 
-    constructor(path: PointInterface[]) {
+    constructor(path: PointInterface[], polygon: PointInterface[]) {
 
         this.path = path
+        this.pathPolygon = polygon
         this.init()
     }
 
@@ -38,43 +35,61 @@ export class Map implements MapInterface {
         const minX = this.path.reduce((min, point) => (point.x < min ? point.x : min), 0)
         const maxY = this.path.reduce((max, point) => (point.y > max ? point.y : max), 0)
         const maxX = this.path.reduce((max, point) => (point.x > max ? point.x : max), 0)
-        console.log(`minX: ${minX}, minY: ${minY}, maxX: ${maxX}, maxY: ${maxY}`)
         const offsetX = minX === 0 ? 0 : -minX
         const offsetY = minY === 0 ? 0 : -minY
 
-        console.log(`offsetX: ${offsetX}, offsetY: ${offsetY}`)
+        // normalize path and the polygon
         if (minX < 0 || minY < 0) {
             this.path.forEach((point) => {
                 point.x += offsetX
                 point.y += offsetY
             })
-
-            console.log(this.path)
+            this.pathPolygon.forEach((point) => {
+                point.x += offsetX
+                point.y += offsetY
+            })
         }
+
+        // create path map for faster search
+        this.path.forEach((point) => {
+            this.pathMap[point.key()] = point.clone()
+        })
 
         this.gridHeight = Math.abs(minY) + Math.abs(maxY) + 1
         this.gridWidth = Math.abs(minX) + Math.abs(maxX) + 1
 
+        // fill hash map with points
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
-                const pathItem = this.path.find((point) => point.x === x && point.y === y)
-                if (pathItem) {
-                    this.points[pathItem.key()] = pathItem
+                if (this.pathMap[`${x},${y}`]) {
+                    this.points[`${x},${y}`] = this.pathMap[`${x},${y}`]
                 } else {
                     const newPoint = new Point(x, y, '', '.')
                     this.points[newPoint.key()] = newPoint
                 }
             }
         }
-        console.log(Object.keys(this.points).length)
     }
 
-    public drawLine(start: PointInterface, direction: VectorInterface): void {
-        const line = new Line(start, direction)
-        const points = line.draw()
-        points.forEach((point: PointInterface) => {
-            this.points[point.key()] = point
-        })
+    public isPointInPolygon(point: PointInterface): boolean {
+        const latitude = point.x
+        const longitude = point.y
+
+        let inside = false
+        for (let i = 0, j = this.pathPolygon.length - 1; i < this.pathPolygon.length; j = i++) {
+            const xi = this.pathPolygon[i].x
+            const yi = this.pathPolygon[i].y
+            const xj = this.pathPolygon[j].x
+            const yj = this.pathPolygon[j].y
+
+            //console.log('xi:', xi, 'yi:', yi, 'xj:', xj, 'yj:', yj, 'latitude:', latitude, 'longitude:', longitude)
+            const intersect = ((yi > longitude) !== (yj > longitude)) &&
+                (latitude < (xj - xi) * (longitude - yi) / (yj - yi) + xi)
+            if (intersect) {
+                inside = !inside
+            }
+        }
+        return inside
     }
 
     public getVolume(): number {
@@ -85,14 +100,14 @@ export class Map implements MapInterface {
         const neighbours: PointInterface[] = []
 
         if (x > 0 && x < this.gridWidth - 1 && y > 0 && y < this.gridHeight - 1) {
-            neighbours.push(this.points[`${y - 1},${x - 1}`])
-            neighbours.push(this.points[`${y - 1},${x}`])
-            neighbours.push(this.points[`${y - 1},${x + 1}`])
-            neighbours.push(this.points[`${y},${x - 1}`])
-            neighbours.push(this.points[`${y},${x + 1}`])
-            neighbours.push(this.points[`${y + 1},${x - 1}`])
-            neighbours.push(this.points[`${y + 1},${x}`])
-            neighbours.push(this.points[`${y + 1},${x + 1}`])
+            neighbours.push(this.points[`${x - 1},${y - 1}`])
+            neighbours.push(this.points[`${x - 1},${y}`])
+            neighbours.push(this.points[`${x - 1},${y + 1}`])
+            neighbours.push(this.points[`${x},${y - 1}`])
+            neighbours.push(this.points[`${x},${y + 1}`])
+            neighbours.push(this.points[`${x + 1},${y - 1}`])
+            neighbours.push(this.points[`${x + 1},${y}`])
+            neighbours.push(this.points[`${x + 1},${y + 1}`])
         }
 
         return neighbours
@@ -105,18 +120,30 @@ export class Map implements MapInterface {
         if (y < 0 || y >= this.gridHeight) {
             return
         }
-        if (this.points[`${y},${x}`].value !== prev) {
+        if (this.filled[`${x},${y}`]) {
             return
         }
-        this.points[`${y},${x}`].value = value
-        this.visited.push(this.points[`${y},${x}`])
+        if (this.points[`${x},${y}`].value !== prev) {
+            return
+        }
+        this.points[`${x},${y}`].value = value
+        this.filled[`${x},${y}`] = this.points[`${x},${y}`]
+        this.visited.push(this.points[`${x},${y}`])
 
         this.getNeighbours(x, y).forEach((neighbour) => {
             const alreadyVisited = this.visited.filter(
-                (value) => value.y === neighbour.x && value.x === neighbour.y && value.value === neighbour.value
+                (value) => value.y === neighbour.x && value.x === neighbour.y && value.value === neighbour.value && !this.filled[neighbour.key()]
             )
             if (alreadyVisited.length === 0) {
                 return this.fill(neighbour.x, neighbour.y, value, prev)
+            }
+        })
+    }
+
+    public fillPath(): void {
+        Object.values(this.points).forEach((point) => {
+            if (this.isPointInPolygon(point)) {
+                this.points[point.key()].value = '#'
             }
         })
     }

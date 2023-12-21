@@ -16,4 +16,8 @@ export class Point implements PointInterface {
     public key(): string {
         return `${this.x},${this.y}`
     }
+
+    public clone(): PointInterface {
+        return new Point(this.x, this.y, this.color, this.value)
+    }
 }

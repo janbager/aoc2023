@@ -1,4 +1,11 @@
-import { VectorInterface } from './interfaces'
+import {VectorInterface} from './interfaces'
+
+enum Direction {
+    Up = 'U',
+    Down = 'D',
+    Left = 'L',
+    Right = 'R',
+}
 
 export class Vector implements VectorInterface {
     x: number
@@ -11,13 +18,13 @@ export class Vector implements VectorInterface {
 
     static fromDirectionAndLength(direction: string, length: number): VectorInterface {
         switch (direction) {
-            case 'U':
+            case Direction.Up:
                 return new Vector(0, -length)
-            case 'D':
+            case Direction.Down:
                 return new Vector(0, length)
-            case 'L':
+            case Direction.Left:
                 return new Vector(-length, 0)
-            case 'R':
+            case Direction.Right:
                 return new Vector(length, 0)
             default:
                 throw new Error(`Unknown direction ${direction}`)

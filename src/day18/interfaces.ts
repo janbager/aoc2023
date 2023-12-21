@@ -5,6 +5,8 @@ export interface PointInterface {
     value: string
 
     key(): string
+
+    clone(): PointInterface
 }
 
 export interface VectorInterface {
